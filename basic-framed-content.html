@@ -13,7 +13,6 @@ The two elements communicate with postMessage, which is not supportedy by IE10.
 Polymer( "basic-framed-content", {
 
   broadcastContent: function() {
-    this.log( "broadcastContent" );
     window.parent.postMessage({
       message: "framedContentChanged",
       content: this.innerHTML
