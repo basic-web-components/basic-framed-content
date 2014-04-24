@@ -6,9 +6,9 @@ to the size of the contents of the inner element.
 The two elements communicate with postMessage, which is not supportedy by IE10.
 -->
 
-<link rel="import" href="../basic-element/basic-element.html">
+<link rel="import" href="../polymer/polymer.html">
 
-<polymer-element name="basic-framed-content" extends="basic-element">
+<polymer-element name="basic-framed-content">
 <script>
 Polymer( "basic-framed-content", {
 
@@ -48,6 +48,19 @@ Polymer( "basic-framed-content", {
           break;
       }
     }.bind( this ));
+
+    var observer = new MutationObserver( function() {
+      this.contentChanged();
+    }.bind( this ));
+    // Unlike a typical basic-element, we also want to observe attribute changes.
+    observer.observe( this, {
+      attributes: true,
+      characterData: true,
+      childList: true,
+      subtree: true
+    });
+    this.contentChanged();
+
   }
 
 });
