@@ -1,0 +1,17 @@
+{
+  "name": "basic-framed-content",
+  "description": "Allows its content to be set/get across an iframe boundary",
+  "version": "0.0.1",
+  "license": "MIT",
+  "main": "basic-framed-content.html",
+  "dependencies": {
+    "basic-element": "basic-web-components/basic-element#master"
+  },
+  "keywords": [
+    "basic-web-components",
+    "web-components"
+  ],
+  "ignore": [
+    "**/.*"
+  ]
+}

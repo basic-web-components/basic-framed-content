@@ -1,0 +1,62 @@
+<!--
+When this is placed on a page framed by a basic-autosize-iframe element, the
+two elements will cooperate to ensure the outer element can automatically adjust
+to the size of the contents of the inner element.
+
+The two elements communicate with postMessage, which is not supportedy by IE10.
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+
+<polymer-element name="basic-framed-content">
+<script>
+Polymer( "basic-framed-content", {
+
+  broadcastContent: function() {
+    window.parent.postMessage({
+      message: "framedContentChanged",
+      content: this.innerHTML
+    }, "*" );
+  },
+
+  ready: function() {
+
+    var observer = new MutationObserver( function() {
+      this.broadcastContent();
+    }.bind( this ));
+    observer.observe( this, {
+      attributes: true,
+      characterData: true,
+      childList: true,
+      subtree: true
+    });
+
+    window.addEventListener( "polymer-ready", function() {
+      window.parent.postMessage( "framedPolymerReady", "*" );
+      this.broadcastContent();
+    }.bind( this ));
+
+    window.addEventListener( "message", function( event ) {
+      if ( !event.data ) {
+        return;
+      }
+      switch ( event.data.message ) {
+        case "setContent":
+          this.innerHTML = event.data.content;
+          // Promote any links to document head.
+          var links = this.querySelectorAll( "link" );
+          Array.prototype.forEach.call( links, function( link ) {
+            document.head.appendChild( link );
+          });
+          break;
+
+        case "broadcastContent":
+          this.broadcastContent();
+          break;
+      }
+    }.bind( this ));
+  }
+
+});
+</script>
+</polymer-element>
