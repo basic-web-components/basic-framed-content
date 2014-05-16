@@ -9,14 +9,30 @@ The two elements communicate with postMessage, which is not supportedy by IE10.
 <link rel="import" href="../polymer/polymer.html">
 
 <polymer-element name="basic-framed-content">
+
+<template>
+  <style>
+  :host {
+    display: block;
+  }
+  </style>
+  <content></content>
+</template>
+
 <script>
 Polymer( "basic-framed-content", {
 
   broadcastContent: function() {
-    window.parent.postMessage({
-      message: "framedContentChanged",
-      content: this.innerHTML
-    }, "*" );
+    // Our own height isn't available immediately; wait a tick to give ourselves
+    // a chance to render.
+    window.setTimeout( function() {
+      var height = Math.ceil( this.offsetHeight );
+      window.parent.postMessage({
+        height: height,
+        message: "framedContentChanged",
+        content: this.innerHTML
+      }, "*" );
+    }.bind( this ), 1 );
   },
 
   contentChanged: function() {
