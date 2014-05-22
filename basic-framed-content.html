@@ -23,26 +23,18 @@ The two elements communicate with postMessage, which is not supportedy by IE10.
 Polymer( "basic-framed-content", {
 
   broadcastContent: function() {
-    // Our own height isn't available immediately; wait a tick to give ourselves
-    // a chance to render first.
-    window.setTimeout( function() {
-      var height = Math.ceil( this.offsetHeight );
-      window.parent.postMessage({
-        height: height,
-        message: "framedContentChanged",
-        content: this.innerHTML
-      }, "*" );
-    }.bind( this ), 1 );
+    this._postMessageToParent( "framedContentResponse", this.innerHTML );
   },
 
-  contentChanged: function() {
-    this.broadcastContent();
+  broadcastHeight: function() {
+    this._lastHeight = this._getHeight();
+    this._postMessageToParent( "framedHeightResponse", this._lastHeight );
   },
 
   ready: function() {
 
     window.addEventListener( "polymer-ready", function() {
-      window.parent.postMessage( "framedPolymerReady", "*" );
+      this._postMessageToParent( "framedPolymerReady" );
     }.bind( this ));
 
     window.addEventListener( "message", function( event ) {
@@ -51,7 +43,7 @@ Polymer( "basic-framed-content", {
       }
       switch ( event.data.message ) {
         case "setContent":
-          this.innerHTML = event.data.content;
+          this.innerHTML = event.data.detail;
           // Promote any links to document head.
           var links = this.querySelectorAll( "link" );
           Array.prototype.forEach.call( links, function( link ) {
@@ -59,8 +51,12 @@ Polymer( "basic-framed-content", {
           });
           break;
 
-        case "broadcastContent":
+        case "requestContent":
           this.broadcastContent();
+          break;
+
+        case "requestHeight":
+          this.broadcastHeight();
           break;
       }
     }.bind( this ));
@@ -68,7 +64,7 @@ Polymer( "basic-framed-content", {
     // This is similar to what basic-element does to observe content changes,
     // but here we also want to observe attribute changes.
     var observer = new MutationObserver( function() {
-      this.contentChanged();
+      this._contentChanged();
     }.bind( this ));
     observer.observe( this, {
       attributes: true,
@@ -76,8 +72,41 @@ Polymer( "basic-framed-content", {
       childList: true,
       subtree: true
     });
-    this.contentChanged();
+    this._contentChanged();
 
+  },
+
+  // Our content is changed. Broadcast the new content and the height (if the
+  // height changed too).
+  _contentChanged: function() {
+    this.broadcastContent();
+    
+    // If the height changed, broadcast that too. Our own height won't be
+    // available immediately; wait a tick to give the browser a chance to re-
+    // render first.
+    window.setTimeout( function() {
+      if ( this._lastHeight !== this._getHeight() ) {
+        // Height changed since the last time we checked.
+        this.broadcastHeight();
+      }
+    }.bind( this ), 1 );
+  },
+
+  _getHeight: function() {
+    return Math.ceil( this.offsetHeight );
+  },
+
+  // The last known height of this element
+  _lastHeight: null,
+
+  _postMessageToParent: function( message, detail ) {
+    var payload = {
+      message: message
+    };
+    if ( detail ) {
+      payload.detail = detail;
+    }
+    window.parent.postMessage( payload, "*" );
   }
 
 });
