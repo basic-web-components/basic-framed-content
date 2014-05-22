@@ -1,6 +1,6 @@
 {
   "name": "basic-framed-content",
-  "description": "Allows its content to be set/get across an iframe boundary",
+  "description": "Communicates across a frame boundary to an outer element",
   "version": "0.0.1",
   "license": "MIT",
   "main": "basic-framed-content.html",
