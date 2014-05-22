@@ -24,7 +24,7 @@ Polymer( "basic-framed-content", {
 
   broadcastContent: function() {
     // Our own height isn't available immediately; wait a tick to give ourselves
-    // a chance to render.
+    // a chance to render first.
     window.setTimeout( function() {
       var height = Math.ceil( this.offsetHeight );
       window.parent.postMessage({
@@ -65,10 +65,11 @@ Polymer( "basic-framed-content", {
       }
     }.bind( this ));
 
+    // This is similar to what basic-element does to observe content changes,
+    // but here we also want to observe attribute changes.
     var observer = new MutationObserver( function() {
       this.contentChanged();
     }.bind( this ));
-    // Unlike a typical basic-element, we also want to observe attribute changes.
     observer.observe( this, {
       attributes: true,
       characterData: true,
