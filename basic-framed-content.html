@@ -101,11 +101,17 @@ Polymer( "basic-framed-content", {
 
   _postMessageToParent: function( message, detail ) {
     var payload = {
-      message: message
+      message: message,
+      source: location.href
     };
     if ( detail ) {
       payload.detail = detail;
     }
+    // TODO: For better security, set a target origin on the message. If we're
+    // responding to a request, we could keep track of the origin of the request
+    // and use that as the target origin for the response. This would get a bit
+    // tricky for cases where we want to post a message that's not directly in
+    // response to a request.
     window.parent.postMessage( payload, "*" );
   }
 
