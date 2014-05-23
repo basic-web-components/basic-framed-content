@@ -11,6 +11,13 @@ The two elements communicate with postMessage, which is not supportedy by IE10.
 
 See basic-seamless-iframe for a demo.
 
+The outer element will auto-size to be only as tall as the basic-framed-content
+element, so the height of elements on the framed page outside the basic-framed-
+content won't be taken into account. In order for the outer basic-seamless-
+iframe to set its height correctly, the framed page hosting the basic-framed-
+content instance should not have any margin, padding, or other elements outside
+the basic-framed-content.
+
 @element basic-framed-content
 -->
 
@@ -30,7 +37,7 @@ See basic-seamless-iframe for a demo.
 <script>
 Polymer( "basic-framed-content", {
 
-  /*
+  /**
    * Broadcast the element's current content to the contained page.
    *
    * @method broadcastContent
@@ -39,7 +46,7 @@ Polymer( "basic-framed-content", {
     this._postMessageToParent( "framedContentResponse", this.innerHTML );
   },
 
-  /*
+  /**
    * Broadcast the element's current height to the contained page.
    *
    * @method broadcastHeight
