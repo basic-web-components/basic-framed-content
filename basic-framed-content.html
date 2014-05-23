@@ -9,8 +9,6 @@ two elements will cooperate to handle common cross-frame scenarios:
 
 The two elements communicate with postMessage, which is not supportedy by IE10.
 
-See basic-seamless-iframe for a demo.
-
 The outer element will auto-size to be only as tall as the basic-framed-content
 element, so the height of elements on the framed page outside the basic-framed-
 content won't be taken into account. In order for the outer basic-seamless-
@@ -19,6 +17,7 @@ content instance should not have any margin, padding, or other elements outside
 the basic-framed-content.
 
 @element basic-framed-content
+@demo ../packages/sample/basic-seamless-iframe/index.html
 -->
 
 <link rel="import" href="../polymer/polymer.html">
