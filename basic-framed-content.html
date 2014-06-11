@@ -103,7 +103,6 @@ Polymer( "basic-framed-content", {
   _checkForHeightChange: function() {
     if ( this._lastHeight !== this._getHeight() ) {
       // Height changed since the last time we checked.
-      console.log( "height changed" );
       this.broadcastHeight();
     }
   },
@@ -138,7 +137,6 @@ Polymer( "basic-framed-content", {
     var elements = this.querySelectorAll( tag );
     Array.prototype.forEach.call( elements, function( element ) {
       element.addEventListener( "load", function() {
-        console.log( "loaded image" );
         this._checkForHeightChange();
       }.bind( this ));
     }.bind( this ));
