@@ -36,6 +36,23 @@ the basic-framed-content.
 <script>
 Polymer({
 
+  attached: function() {
+    // This is similar to what basic-element does to observe content changes,
+    // but here we also want to observe attribute changes.
+    var observer = new MutationObserver( function() {
+      this._contentChanged();
+    }.bind( this ));
+    observer.observe( this, {
+      attributes: true,
+      characterData: true,
+      childList: true,
+      subtree: true
+    });
+    if ( this.childNodes.length > 0 ) {
+      this._contentChanged();
+    }
+  },
+
   /**
    * Broadcast the element's current content to the contained page.
    *
@@ -84,19 +101,6 @@ Polymer({
           break;
       }
     }.bind( this ));
-
-    // This is similar to what basic-element does to observe content changes,
-    // but here we also want to observe attribute changes.
-    var observer = new MutationObserver( function() {
-      this._contentChanged();
-    }.bind( this ));
-    observer.observe( this, {
-      attributes: true,
-      characterData: true,
-      childList: true,
-      subtree: true
-    });
-    this._contentChanged();
 
   },
 
