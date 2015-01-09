@@ -151,7 +151,7 @@ Polymer({
       message: message,
       source: location.href
     };
-    if ( detail ) {
+    if ( detail != null ) {
       payload.detail = detail;
     }
     // TODO: For better security, set a target origin on the message. If we're
