@@ -39,16 +39,16 @@ Polymer({
   attached: function() {
     // This is similar to what basic-element does to observe content changes,
     // but here we also want to observe attribute changes.
-    var observer = new MutationObserver( function() {
+    var observer = new MutationObserver(function() {
       this._contentChanged();
-    }.bind( this ));
-    observer.observe( this, {
+    }.bind(this));
+    observer.observe(this, {
       attributes: true,
       characterData: true,
       childList: true,
       subtree: true
     });
-    if ( this.childNodes.length > 0 ) {
+    if (this.childNodes.length > 0) {
       this._contentChanged();
     }
   },
@@ -59,7 +59,7 @@ Polymer({
    * @method broadcastContent
    */
   broadcastContent: function() {
-    this._postMessageToParent( "framedContentResponse", this.innerHTML );
+    this._postMessageToParent('framedContentResponse', this.innerHTML);
   },
 
   /**
@@ -69,43 +69,43 @@ Polymer({
    */
   broadcastHeight: function() {
     this._lastHeight = this._getHeight();
-    this._postMessageToParent( "framedHeightResponse", this._lastHeight );
+    this._postMessageToParent('framedHeightResponse', this._lastHeight);
   },
 
   ready: function() {
 
-    window.addEventListener( "polymer-ready", function() {
-      this._postMessageToParent( "framedPolymerReady" );
-    }.bind( this ));
+    window.addEventListener('polymer-ready', function() {
+      this._postMessageToParent('framedPolymerReady');
+    }.bind(this));
 
-    window.addEventListener( "message", function( event ) {
-      if ( !event.data ) {
+    window.addEventListener('message', function(event) {
+      if (!event.data) {
         return;
       }
-      switch ( event.data.message ) {
-        case "setContent":
+      switch (event.data.message) {
+        case 'setContent':
           this.innerHTML = event.data.detail;
           // Promote any links to document head.
-          var links = this.querySelectorAll( "link" );
-          Array.prototype.forEach.call( links, function( link ) {
-            document.head.appendChild( link );
+          var links = this.querySelectorAll('link');
+          Array.prototype.forEach.call(links, function(link) {
+            document.head.appendChild(link);
           });
           break;
 
-        case "requestContent":
+        case 'requestContent':
           this.broadcastContent();
           break;
 
-        case "requestHeight":
+        case 'requestHeight':
           this.broadcastHeight();
           break;
       }
-    }.bind( this ));
+    }.bind(this));
 
   },
 
   _checkForHeightChange: function() {
-    if ( this._lastHeight !== this._getHeight() ) {
+    if (this._lastHeight !== this._getHeight()) {
       // Height changed since the last time we checked.
       this.broadcastHeight();
     }
@@ -118,40 +118,40 @@ Polymer({
 
     // The loading of data will *not* count as a DOM mutation event, so we have
     // to explicitly listen for load events on elements that have them.
-    this._listenForLoadEvents( "img" );
-    this._listenForLoadEvents( "iframe" );
+    this._listenForLoadEvents('img');
+    this._listenForLoadEvents('iframe');
     
     // If the height changed, broadcast that too. Our own height won't be
     // available immediately; wait a tick to give the browser a chance to re-
     // render first.
-    window.setTimeout( function() {
+    window.setTimeout(function() {
       this._checkForHeightChange();
-    }.bind( this ), 1 );
+    }.bind(this), 1);
   },
 
   _getHeight: function() {
-    return Math.ceil( this.offsetHeight );
+    return Math.ceil(this.offsetHeight);
   },
 
   // The last known height of this element
   _lastHeight: null,
 
   // Listen for load events on children of the specified tag type.
-  _listenForLoadEvents: function( tag ) {
-    var elements = this.querySelectorAll( tag );
-    Array.prototype.forEach.call( elements, function( element ) {
-      element.addEventListener( "load", function() {
+  _listenForLoadEvents: function(tag) {
+    var elements = this.querySelectorAll(tag);
+    Array.prototype.forEach.call(elements, function(element) {
+      element.addEventListener('load', function() {
         this._checkForHeightChange();
-      }.bind( this ));
-    }.bind( this ));
+      }.bind(this));
+    }.bind(this));
   },
 
-  _postMessageToParent: function( message, detail ) {
+  _postMessageToParent: function(message, detail) {
     var payload = {
       message: message,
       source: location.href
     };
-    if ( detail != null ) {
+    if (detail != null) {
       payload.detail = detail;
     }
     // TODO: For better security, set a target origin on the message. If we're
@@ -159,7 +159,7 @@ Polymer({
     // and use that as the target origin for the response. This would get a bit
     // tricky for cases where we want to post a message that's not directly in
     // response to a request.
-    window.parent.postMessage( payload, "*" );
+    window.parent.postMessage(payload, '*');
   }
 
 });
