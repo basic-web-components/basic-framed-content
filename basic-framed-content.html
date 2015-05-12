@@ -20,38 +20,41 @@ the basic-framed-content.
 @demo ../packages/sample/basic-seamless-iframe/index.html
 -->
 
-<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<script src="../basic-shared/ContentChanged.js"></script>
 
-<polymer-element name="basic-framed-content">
-
-<template>
+<dom-module id="basic-framed-content">
   <style>
   :host {
     display: block;
   }
   </style>
-  <content></content>
-</template>
+  <template>
+    <content></content>
+  </template>
+</dom-module>
 
 <script>
 Polymer({
 
-  attached: function() {
-    // This is similar to what basic-element does to observe content changes,
-    // but here we also want to observe attribute changes.
-    var observer = new MutationObserver(function() {
-      this._contentChanged();
-    }.bind(this));
-    observer.observe(this, {
-      attributes: true,
-      characterData: true,
-      childList: true,
-      subtree: true
-    });
-    if (this.childNodes.length > 0) {
-      this._contentChanged();
-    }
-  },
+  // attached: function() {
+  //   // This is similar to what basic-element does to observe content changes,
+  //   // but here we also want to observe attribute changes.
+  //   var observer = new MutationObserver(function() {
+  //     this._contentChanged();
+  //   }.bind(this));
+  //   observer.observe(this, {
+  //     attributes: true,
+  //     characterData: true,
+  //     childList: true,
+  //     subtree: true
+  //   });
+  //   if (this.childNodes.length > 0) {
+  //     this._contentChanged();
+  //   }
+  // },
+
+  behaviors: [Basic.ContentChanged],
 
   /**
    * Broadcast the element's current content to the contained page.
@@ -72,10 +75,33 @@ Polymer({
     this._postMessageToParent('framedHeightResponse', this._lastHeight);
   },
 
+  // Our content is changed. Broadcast the new content and the height (if the
+  // height changed too).
+  // TODO: Add support Basic.ContentChanged to observe attribute changes in
+  // children (but not attribute changes on the top-level element).
+  contentChanged: function() {
+    this.broadcastContent();
+
+    // The loading of data will *not* count as a DOM mutation event, so we have
+    // to explicitly listen for load events on elements that have them.
+    this._listenForLoadEvents('img');
+    this._listenForLoadEvents('iframe');
+
+    // If the height changed, broadcast that too. Our own height won't be
+    // available immediately; wait a tick to give the browser a chance to re-
+    // render first.
+    window.setTimeout(function() {
+      this._checkForHeightChange();
+    }.bind(this), 1);
+  },
+
+  is: 'basic-framed-content',
+
   ready: function() {
 
-    window.addEventListener('polymer-ready', function() {
-      this._postMessageToParent('framedPolymerReady');
+    window.addEventListener('WebComponentsReady', function() {
+      this._postMessageToParent('framedPolymerReady'); // For backward compat
+      this._postMessageToParent('framedWebComponentsReady');
     }.bind(this));
 
     window.addEventListener('message', function(event) {
@@ -86,7 +112,7 @@ Polymer({
         case 'setContent':
           this.innerHTML = event.data.detail;
           // Promote any links to document head.
-          var links = this.querySelectorAll('link');
+          var links = Polymer.dom(this).querySelectorAll('link');
           Array.prototype.forEach.call(links, function(link) {
             document.head.appendChild(link);
           });
@@ -111,24 +137,6 @@ Polymer({
     }
   },
 
-  // Our content is changed. Broadcast the new content and the height (if the
-  // height changed too).
-  _contentChanged: function() {
-    this.broadcastContent();
-
-    // The loading of data will *not* count as a DOM mutation event, so we have
-    // to explicitly listen for load events on elements that have them.
-    this._listenForLoadEvents('img');
-    this._listenForLoadEvents('iframe');
-    
-    // If the height changed, broadcast that too. Our own height won't be
-    // available immediately; wait a tick to give the browser a chance to re-
-    // render first.
-    window.setTimeout(function() {
-      this._checkForHeightChange();
-    }.bind(this), 1);
-  },
-
   _getHeight: function() {
     return Math.ceil(this.offsetHeight);
   },
@@ -138,7 +146,7 @@ Polymer({
 
   // Listen for load events on children of the specified tag type.
   _listenForLoadEvents: function(tag) {
-    var elements = this.querySelectorAll(tag);
+    var elements = Polymer.dom(this).querySelectorAll(tag);
     Array.prototype.forEach.call(elements, function(element) {
       element.addEventListener('load', function() {
         this._checkForHeightChange();
@@ -164,4 +172,3 @@ Polymer({
 
 });
 </script>
-</polymer-element>
